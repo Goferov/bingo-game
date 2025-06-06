@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function bingoCards()
+    {
+        return $this->hasMany(BingoCard::class);
+    }
+
+    public function updatedSettings()
+    {
+        return $this->hasMany(GameSetting::class, 'updated_by_user_id');
+    }
 }
