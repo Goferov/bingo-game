@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+    postgres:
+        image: postgres:15
+        restart: always
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+            POSTGRES_DB: bingo_game
+        ports:
+            - 5433:5432
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+    redis:
+        image: redis:latest
+        restart: always
+        ports:
+            - 6379:6379
+volumes:
+    postgres_data:
