@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BingoController;
+use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\RankingController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -18,6 +20,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bingo/mark', [BingoController::class, 'markTile']);
     Route::post('/bingo/claim-win', [BingoController::class, 'ClaimWin']);
     Route::post('/bingo/has-bingo', [BingoController::class, 'HasBingoStatus']);
+
+
+    Route::apiResource('events', EventController::class);
+    Route::apiResource('users', UserController::class);
+
 });
 
-Route::get('/ranking', [RankingController::class, 'index'])->middleware('auth:sanctum');;
+Route::get('/ranking', [RankingController::class, 'index'])->middleware('auth:sanctum');

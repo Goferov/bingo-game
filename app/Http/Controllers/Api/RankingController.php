@@ -15,31 +15,20 @@ class RankingController extends Controller
         $type = $request->query('type', 'all_time');
         $limit = $request->query('limit', 10);
 
-        switch ($type) {
-            case 'monthly':
-                $start = now()->startOfMonth();
-                break;
-            case 'weekly':
-                $start = now()->startOfWeek();
-                break;
-            case 'daily':
-                $start = now()->startOfDay();
-                break;
-            case 'all_time':
-            default:
-                $users = User::orderByDesc('points')->limit($limit)->get();
-                return response()->json([
-                    'type' => 'all_time',
-                    'users' => $users->map(fn($u) => [
-                        'id' => $u->id,
-                        'name' => $u->name,
-                        'points' => $u->points,
-                    ]),
-                ]);
+        $start = match ($type) {
+            'monthly' => now()->startOfMonth(),
+            'weekly'  => now()->startOfWeek(),
+            'daily'   => now()->startOfDay(),
+            default   => null,
+        };
+
+        $query = DailyGame::whereNotNull('winner_user_id');
+
+        if ($start) {
+            $query->where('date', '>=', $start);
         }
 
-        $winners = DailyGame::where('winner_user_id', '!=', null)
-            ->where('date', '>=', $start)
+        $winners = $query
             ->select('winner_user_id', DB::raw('count(*) as wins'))
             ->groupBy('winner_user_id')
             ->orderByDesc('wins')
