@@ -1,35 +1,103 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
+import { ProtectedRoute } from "./components/ProtectedRoute"
+import { LoginPage } from "./pages/LoginPage"
+import { GamePage } from "./pages/GamePage"
+import { RankingPage } from "./pages/RankingPage"
+import { AdminDashboard } from "./pages/admin/AdminDashboard"
+import { EventsList } from "./pages/admin/events/EventsList"
+import { EventForm } from "./pages/admin/events/EventForm"
+import { UsersList } from "./pages/admin/users/UsersList"
+import { UserForm } from "./pages/admin/users/UserForm"
 
 function App() {
-  const [count, setCount] = useState(0)
+    return (
+        <AuthProvider>
+            <Router>
+                <div className="App">
+                    <Routes>
+                        <Route path="/login" element={<LoginPage />} />
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+                        {/* Chronione trasy dla zalogowanych użytkowników */}
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <GamePage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/ranking"
+                            element={
+                                <ProtectedRoute>
+                                    <RankingPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* Panel administratora */}
+                        <Route
+                            path="/admin"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/events"
+                            element={
+                                <ProtectedRoute>
+                                    <EventsList />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/events/create"
+                            element={
+                                <ProtectedRoute>
+                                    <EventForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/events/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <EventForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/users"
+                            element={
+                                <ProtectedRoute>
+                                    <UsersList />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/users/create"
+                            element={
+                                <ProtectedRoute>
+                                    <UserForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/users/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <UserForm />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Routes>
+                </div>
+            </Router>
+        </AuthProvider>
+    )
 }
 
 export default App
