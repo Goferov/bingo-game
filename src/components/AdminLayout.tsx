@@ -26,7 +26,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     )
   }
 
-  const isAdmin = user && (user.id === 1 || user.id === "1")
+  const isAdmin = user && (user.role === "admin" || user.role === "super-admin")
 
   if (!isAdmin) {
     console.log("Not admin, redirecting to /")

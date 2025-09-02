@@ -7,11 +7,8 @@ import { useAuth } from "../contexts/AuthContext"
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth()
   const location = useLocation()
-  const isAdmin = user && (user.id === 1 || user.id === "1")
+  const isAdmin = user && (user.role === "admin" || user.role === "super-admin")
 
-  // Debugowanie
-  console.log("Navbar - user:", user)
-  console.log("Navbar - isAdmin:", isAdmin)
 
   return (
       <header className="bg-white shadow">

@@ -6,6 +6,9 @@ import { useNavigate, useParams } from "react-router-dom"
 import { AdminLayout } from "../../../components/AdminLayout"
 import { apiClient } from "../../../lib/api"
 
+const USER_ROLES = ["admin", "user", "super-admin"] as const
+type UserRole = (typeof USER_ROLES)[number]
+
 export const UserForm: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -16,6 +19,7 @@ export const UserForm: React.FC = () => {
     email: "",
     password: "",
     password_confirmation: "",
+    role: "user" as UserRole,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -35,6 +39,7 @@ export const UserForm: React.FC = () => {
         email: user.email,
         password: "",
         password_confirmation: "",
+        role: (user.role as UserRole) || "user",
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Błąd ładowania użytkownika")
@@ -43,15 +48,26 @@ export const UserForm: React.FC = () => {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const validateRole = (role: string): role is UserRole => {
+    return USER_ROLES.includes(role as UserRole)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
+
+    // Walidacja roli
+    if (!validateRole(formData.role)) {
+      setError("Nieprawidłowa rola użytkownika. Dozwolone role to: admin, user, super-admin")
+      setLoading(false)
+      return
+    }
 
     if (formData.password && formData.password !== formData.password_confirmation) {
       setError("Hasła nie są identyczne")
@@ -60,9 +76,14 @@ export const UserForm: React.FC = () => {
     }
 
     try {
-      const userData: { name: string; email: string; password?: string } = {
+      const userData: { name: string; email: string; role?: string; password?: string } = {
         name: formData.name,
         email: formData.email,
+      }
+
+      // Nie przesyłaj roli jeśli to super-admin
+      if (formData.role !== "super-admin") {
+        userData.role = formData.role
       }
 
       if (formData.password) {
@@ -80,6 +101,8 @@ export const UserForm: React.FC = () => {
       setLoading(false)
     }
   }
+
+  const isSuperAdmin = formData.role === "super-admin"
 
   return (
       <AdminLayout>
@@ -125,6 +148,34 @@ export const UserForm: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
               />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                Rola użytkownika *
+              </label>
+              {isSuperAdmin ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500">
+                    Super Administrator
+                  </div>
+              ) : (
+                  <select
+                      id="role"
+                      name="role"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={formData.role}
+                      onChange={handleChange}
+                  >
+                    <option value="user">Użytkownik</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                {isSuperAdmin
+                    ? "Rola Super Administrator nie może być zmieniona."
+                    : "Wybierz rolę użytkownika. Administratorzy mają dostęp do panelu administracyjnego."}
+              </p>
             </div>
 
             <div className="mb-4">

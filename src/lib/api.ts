@@ -252,7 +252,7 @@ class ApiClient {
     return response.json()
   }
 
-  async createUser(data: { name: string; email: string; password?: string }) {
+  async createUser(data: { name: string; email: string; password?: string; role?: string }) {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: "POST",
       headers: this.getAuthHeaders(),
@@ -267,7 +267,7 @@ class ApiClient {
     return response.json()
   }
 
-  async updateUser(id: number, data: { name?: string; email?: string; password?: string }) {
+  async updateUser(id: number, data: { name?: string; email?: string; password?: string; role?: string }) {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
