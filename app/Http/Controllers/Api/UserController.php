@@ -46,6 +46,8 @@ class UserController extends Controller
             'password' => Hash::make($password),
         ]);
 
+        $user->syncRoles([$data['role']]);
+
         Mail::to($user->email)->send(new NewUserCreated($user, $password));
 
         return response()->json($user, 201);

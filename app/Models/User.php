@@ -27,6 +27,8 @@ class User extends Authenticatable
 
     protected $guard_name = 'api';
 
+    protected $appends = ['role'];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -58,5 +60,16 @@ class User extends Authenticatable
     public function updatedSettings()
     {
         return $this->hasMany(GameSetting::class, 'updated_by_user_id');
+    }
+
+    public function getRoleAttribute(): ?string
+    {
+        $priority = ['super-admin' => 3, 'admin' => 2, 'user' => 1];
+
+        $names = $this->roles->pluck('name');
+
+        return $names
+            ->sortByDesc(fn ($n) => $priority[$n] ?? 0)
+            ->first() ?? null;
     }
 }
