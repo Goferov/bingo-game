@@ -14,9 +14,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation()
 
   // Debugowanie
-  console.log("AdminLayout - user:", user)
-  console.log("AdminLayout - user.id:", user?.id)
-  console.log("AdminLayout - typeof user.id:", typeof user?.id)
+  // console.log("AdminLayout - user:", user)
+  // console.log("AdminLayout - user.id:", user?.id)
+  // console.log("AdminLayout - typeof user.id:", typeof user?.id)
 
   if (loading) {
     return (
@@ -26,7 +26,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     )
   }
 
-  // Sprawdź czy użytkownik jest adminem (ID = 1, może być string lub number)
   const isAdmin = user && (user.id === 1 || user.id === "1")
 
   if (!isAdmin) {

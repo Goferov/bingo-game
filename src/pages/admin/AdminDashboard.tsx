@@ -16,12 +16,11 @@ export const AdminDashboard: React.FC = () => {
     const loadStats = async () => {
       setLoading(true)
       try {
-        // W rzeczywistej aplikacji pobieralibyśmy te dane z API
-        // Tutaj symulujemy pobieranie danych
         const events = await apiClient.getEvents()
+        const users = await apiClient.getUsers()
         setStats({
           eventsCount: events.length,
-          usersCount: 0, // Brak endpointu do pobierania wszystkich użytkowników
+          usersCount: users.length, 
         })
       } catch (error) {
         console.error("Error loading stats:", error)

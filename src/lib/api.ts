@@ -4,6 +4,16 @@ class ApiClient {
   private getAuthHeaders() {
     const token = localStorage.getItem("auth_token")
     return {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    }
+  }
+
+  private getAuthHeadersForFormData() {
+    const token = localStorage.getItem("auth_token")
+    return {
+      Accept: "application/json",
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     }
@@ -131,7 +141,7 @@ class ApiClient {
     return response.json()
   }
 
-  // Nowe metody dla eventów
+  // Metody dla eventów z obsługą plików
   async getEvents() {
     const response = await fetch(`${API_BASE_URL}/events`, {
       headers: this.getAuthHeaders(),
@@ -144,11 +154,29 @@ class ApiClient {
     return response.json()
   }
 
-  async createEvent(data: { description: string; image_url?: string }) {
+  async getEvent(id: number) {
+    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to get event")
+    }
+
+    return response.json()
+  }
+
+  async createEvent(data: { description: string; image?: File }) {
+    const formData = new FormData()
+    formData.append("description", data.description)
+    if (data.image) {
+      formData.append("image", data.image)
+    }
+
     const response = await fetch(`${API_BASE_URL}/events`, {
       method: "POST",
       headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      body: formData,
     })
 
     if (!response.ok) {
@@ -159,11 +187,19 @@ class ApiClient {
     return response.json()
   }
 
-  async updateEvent(id: number, data: { description?: string; image_url?: string }) {
+  async updateEvent(id: number, data: { description?: string; image?: File }) {
+    const formData = new FormData()
+    if (data.description) {
+      formData.append("description", data.description)
+    }
+    if (data.image) {
+      formData.append("image", data.image)
+    }
+    formData.append("_method", "PUT")
     const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: "PUT",
+      method: "POST", // Laravel wymaga POST z _method=PUT dla plików
       headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      body: formData,
     })
 
     if (!response.ok) {
@@ -184,11 +220,35 @@ class ApiClient {
       throw new Error("Failed to delete event")
     }
 
+    if (response.status === 204) return
     return response.json()
   }
 
-  // Metody dla użytkowników
-  async createUser(data: { name: string; email: string; password: string }) {
+  async getUsers() {
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to get users")
+    }
+
+    return response.json()
+  }
+
+  async getUser(id: number) {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to get user")
+    }
+
+    return response.json()
+  }
+
+  async createUser(data: { name: string; email: string; password?: string }) {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: "POST",
       headers: this.getAuthHeaders(),
@@ -198,6 +258,34 @@ class ApiClient {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || "Failed to create user")
+    }
+
+    return response.json()
+  }
+
+  async updateUser(id: number, data: { name?: string; email?: string; password?: string }) {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Failed to update user")
+    }
+
+    return response.json()
+  }
+
+  async deleteUser(id: number) {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to delete user")
     }
 
     return response.json()
