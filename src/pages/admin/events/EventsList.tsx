@@ -61,7 +61,13 @@ export const EventsList: React.FC = () => {
     return imageUrl
   }
 
-  const filteredEvents = events.filter((event) => event.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  const term = (searchTerm ?? '').toLowerCase().trim();
+
+  const filteredEvents = events.filter(({ description, name }) => {
+    const desc = (description ?? '').toLowerCase();
+    const nm   = (name ?? '').toLowerCase();
+    return desc.includes(term) || nm.includes(term);
+  });
 
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     if (a[sortField] < b[sortField]) return sortDirection === "asc" ? -1 : 1
@@ -128,6 +134,16 @@ export const EventsList: React.FC = () => {
                 <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center">
+                    Nazwa
+                    {sortField === "name" && <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>}
+                  </div>
+                </th>
+                <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("description")}
                 >
                   <div className="flex items-center">
@@ -154,7 +170,8 @@ export const EventsList: React.FC = () => {
                   sortedEvents.map((event) => (
                       <tr key={event.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{event.id}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{event.description}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{event.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{event.description ?? "Brak"}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {event.image_url ? (
                               <img

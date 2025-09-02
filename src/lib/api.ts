@@ -14,7 +14,6 @@ class ApiClient {
     const token = localStorage.getItem("auth_token")
     return {
       Accept: "application/json",
-      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     }
   }
@@ -166,16 +165,18 @@ class ApiClient {
     return response.json()
   }
 
-  async createEvent(data: { description: string; image?: File }) {
+  async createEvent(data: {name: string, description: string; image?: File }) {
     const formData = new FormData()
+    console.log(data);
     formData.append("description", data.description)
+    formData.append("name", data.name)
     if (data.image) {
       formData.append("image", data.image)
     }
 
     const response = await fetch(`${API_BASE_URL}/events`, {
       method: "POST",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeadersForFormData(),
       body: formData,
     })
 
@@ -192,13 +193,16 @@ class ApiClient {
     if (data.description) {
       formData.append("description", data.description)
     }
+    if (data.name) {
+      formData.append("name", data.name)
+    }
     if (data.image) {
       formData.append("image", data.image)
     }
     formData.append("_method", "PUT")
     const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: "POST", // Laravel wymaga POST z _method=PUT dla plików
-      headers: this.getAuthHeaders(),
+      method: "POST",
+      headers: this.getAuthHeadersForFormData(),
       body: formData,
     })
 

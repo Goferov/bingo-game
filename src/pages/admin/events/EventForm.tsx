@@ -13,9 +13,11 @@ export const EventForm: React.FC = () => {
 
   const [formData, setFormData] = useState<{
     description: string
+    name: string
     image?: File
   }>({
     description: "",
+    name: "",
   })
   const [imagePreview, setImagePreview] = useState<string>("")
   const [loading, setLoading] = useState(false)
@@ -33,10 +35,10 @@ export const EventForm: React.FC = () => {
       const event = await apiClient.getEvent(eventId)
       setFormData({
         description: event.description,
+        name: event.name,
       })
 
       if (event.image_url) {
-        // Jeśli image_url zaczyna się od /storage/, dodaj base URL
         if (event.image_url.startsWith("/storage/")) {
           const baseUrl = "http://localhost:8000"
           setImagePreview(`${baseUrl}${event.image_url}`)
@@ -61,7 +63,6 @@ export const EventForm: React.FC = () => {
     if (file) {
       setFormData((prev) => ({ ...prev, image: file }))
 
-      // Pokaż podgląd
       const reader = new FileReader()
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string)
@@ -104,15 +105,30 @@ export const EventForm: React.FC = () => {
 
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6">
+
             <div className="mb-4">
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Opis wydarzenia *
+                Nazwa *
+              </label>
+              <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.name}
+                  onChange={handleChange}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                Opis wydarzenia
               </label>
               <textarea
                   id="description"
                   name="description"
                   rows={3}
-                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   value={formData.description}
                   onChange={handleChange}
