@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -25,7 +26,7 @@ class EventController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('events', 'public');
-            $imageUrl = Storage::url($path); // zwraca np. /storage/events/abc.jpg
+            $imageUrl = '/storage/'.$path;
         }
 
         $event = Event::create([
@@ -50,12 +51,12 @@ class EventController extends Controller
 
         if ($request->hasFile('image')) {
             if ($event->image_url && str_starts_with($event->image_url, '/storage/')) {
-                $oldPath = str_replace('/storage/', '', $event->image_url);
+                $oldPath = Str::after($event->image_url, '/storage/'); // events/abc.jpg
                 Storage::disk('public')->delete($oldPath);
             }
 
             $path = $request->file('image')->store('events', 'public');
-            $data['image_url'] = Storage::url($path);
+            $data['image_url'] = '/storage/'.$path;
         }
 
         $event->update($data);
@@ -65,9 +66,13 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        if ($event->image_url && str_starts_with($event->image_url, '/storage/')) {
-            $path = str_replace('/storage/', '', $event->image_url);
-            Storage::disk('public')->delete($path);
+        if ($event->image_url) {
+            $path = parse_url($event->image_url, PHP_URL_PATH) ?? $event->image_url;
+            $path = Str::after($path, '/storage/');
+
+            if ($path !== '') {
+                Storage::disk('public')->delete($path);
+            }
         }
 
         $event->delete();
