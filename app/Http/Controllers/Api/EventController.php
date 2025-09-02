@@ -4,19 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index()
     {
+        $this->authorize('viewAny', Event::class);
         return Event::all();
     }
 
     public function store(Request $request)
     {
+
+        $this->authorize('create', Event::class);
         $data = $request->validate([
             'description' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -39,11 +45,13 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
+        $this->authorize('view', $event);
         return $event;
     }
 
     public function update(Request $request, Event $event)
     {
+        $this->authorize('update', $event);
         $data = $request->validate([
             'description' => 'sometimes|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -66,6 +74,8 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
+        $this->authorize('delete', $event);
+
         if ($event->image_url) {
             $path = parse_url($event->image_url, PHP_URL_PATH) ?? $event->image_url;
             $path = Str::after($path, '/storage/');

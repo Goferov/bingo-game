@@ -18,20 +18,14 @@ class BingoGameSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('admin123'),
-        ]);
+        $admin = User::latest()->first();
 
-//        $users = User::factory(4)->create();
+//        $events = Event::factory(50)->create();
 //
-        $events = Event::factory(50)->create();
-//
-//        GameSetting::create([
-//            'grid_size' => 5,
-//            'updated_by_user_id' => $admin->id,
-//        ]);
+        GameSetting::create([
+            'grid_size' => 4,
+            'updated_by_user_id' => $admin->id,
+        ]);
 //
 //        $game = DailyGame::factory()->create([
 //            'date' => now()->format('Y-m-d'),

@@ -25,6 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('events', EventController::class);
     Route::apiResource('users', UserController::class);
 
+    Route::get('/ranking', [RankingController::class, 'index'])->middleware('auth:sanctum');
 });
 
-Route::get('/ranking', [RankingController::class, 'index'])->middleware('auth:sanctum');

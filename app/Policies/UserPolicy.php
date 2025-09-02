@@ -6,38 +6,28 @@ use App\Models\User;
 
 class UserPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(User $actor): bool
     {
-        return true;
+        return $actor->can('user.view');
     }
 
-    public function view(User $user, User $model): bool
+    public function view(User $actor, User $target): bool
     {
-        return true;
+        return $actor->can('user.view');
     }
 
-    public function create(User $user): bool
+    public function create(User $actor): bool
     {
-        return $user->id === 1;
+        return $actor->can('user.create');
     }
 
-    public function update(User $user, User $model): bool
+    public function update(User $actor, User $target): bool
     {
-        return $user->id === 1;
+        return $actor->can('user.update');
     }
 
-    public function delete(User $user, User $model): bool
+    public function delete(User $actor, User $target): bool
     {
-        return $user->id === 1;
-    }
-
-    public function restore(User $user, User $model): bool
-    {
-        return false;
-    }
-
-    public function forceDelete(User $user, User $model): bool
-    {
-        return false;
+        return $actor->can('user.delete') && !$target->hasRole('superadmin');
     }
 }

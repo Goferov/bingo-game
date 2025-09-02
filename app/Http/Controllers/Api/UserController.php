@@ -35,6 +35,7 @@ class UserController extends Controller
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:6',
+            'role'=>'sometimes|string|exists:roles,name',
         ]);
 
         $password = $data['password'] ?? Str::random(10);
@@ -58,12 +59,16 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:100',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
+            'role'=>'sometimes|string|exists:roles,name',
         ]);
 
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
+        }
+
+        if(isset($data['role'])) {
+            if ($user->hasRole('super-admin')) abort(403,'Nie można zmieniać roli super-admina.');
+            $user->syncRoles([$data['role']]);
         }
 
         $user->update($data);
