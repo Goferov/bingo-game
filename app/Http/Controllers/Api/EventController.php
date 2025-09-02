@@ -24,7 +24,8 @@ class EventController extends Controller
 
         $this->authorize('create', Event::class);
         $data = $request->validate([
-            'description' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -36,6 +37,7 @@ class EventController extends Controller
         }
 
         $event = Event::create([
+            'name' => $data['name'],
             'description' => $data['description'],
             'image_url' => $imageUrl,
         ]);
@@ -53,7 +55,8 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
         $data = $request->validate([
-            'description' => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
